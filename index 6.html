@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07182d" />
+  <title>GLORB // Earth Signal Calibration</title>
+  <style>
+:root {
+  --navy: #07182d;
+  --navy-2: #0c2543;
+  --cream: #f7f0e3;
+  --paper: #fbf7ef;
+  --ink: #132031;
+  --muted: #6d7580;
+  --line: #c9c1b4;
+  --accent: #ef7446;
+  --accent-dark: #c9542d;
+  --low: #dce8f5;
+  --steady: #dfeee9;
+  --rising: #f5e5cf;
+  --overload: #f3d8de;
+  --shadow: 0 18px 60px rgba(0,0,0,.18);
+}
+* { box-sizing: border-box; }
+html { background: var(--navy); }
+body { margin:0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--navy); min-height:100vh; }
+button, input, textarea { font: inherit; }
+button { cursor:pointer; }
+.app-shell { min-height:100vh; background: radial-gradient(circle at 18% 10%, #143451 0, var(--navy) 35%, #061426 100%); }
+.topbar { height:58px; border-bottom:1px solid rgba(255,255,255,.16); color:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 24px; font-size:11px; letter-spacing:.16em; }
+.brand { font-weight:700; }
+.top-actions { display:flex; gap:16px; }
+.text-btn { border:0; background:transparent; color:#fff; font-size:10px; letter-spacing:.08em; padding:8px; }
+.text-btn:hover, .text-btn:focus-visible { background:rgba(255,255,255,.08); outline:none; }
+.progress-wrap { max-width:1180px; margin:0 auto; padding:18px 24px 0; color:#fff; }
+.progress-meta { display:flex; justify-content:space-between; font-size:10px; letter-spacing:.14em; margin-bottom:8px; }
+.progress-track { height:3px; background:rgba(255,255,255,.16); }
+.progress-bar { height:100%; background:var(--accent); width:0; transition:width .25s ease; }
+.hidden { display:none !important; }
+.app { max-width:1180px; margin:0 auto; padding:32px 24px 56px; }
+.screen { min-height:calc(100vh - 160px); display:grid; align-items:center; }
+.intro-screen { grid-template-columns:minmax(250px,.8fr) minmax(480px,1.2fr); gap:28px; }
+.intro-art { align-self:end; text-align:center; }
+.intro-art img { max-width:520px; width:100%; filter:drop-shadow(0 20px 20px rgba(0,0,0,.22)); }
+.paper-card { background:var(--cream); border:1px solid #e3d8c8; box-shadow:var(--shadow); padding:48px; position:relative; }
+.paper-card::after { content:""; position:absolute; inset:10px; border:1px solid rgba(21,32,49,.08); pointer-events:none; }
+.eyebrow { margin:0 0 10px; font-size:10px; font-weight:700; letter-spacing:.18em; color:var(--accent-dark); }
+h1,h2,h3 { margin-top:0; letter-spacing:-.035em; }
+h1 { font-size:clamp(36px,5vw,66px); line-height:.9; max-width:850px; }
+h2 { font-size:clamp(30px,4vw,50px); line-height:1; }
+h3 { font-size:20px; }
+p { line-height:1.55; }
+.lead { font-size:18px; line-height:1.5; max-width:700px; }
+.not-test { border-left:4px solid var(--accent); padding:12px 16px; background:rgba(255,255,255,.55); display:grid; gap:4px; margin:26px 0; }
+.not-test strong { font-size:12px; letter-spacing:.08em; }
+.glorb-quote { margin:26px 0; padding:16px 18px; background:#fff9; border:1px solid #ddd1c1; font-size:14px; line-height:1.55; }
+.primary-btn, .secondary-btn, .ghost-btn { min-height:48px; border:1px solid transparent; padding:0 20px; text-transform:uppercase; font-size:11px; letter-spacing:.08em; font-weight:800; }
+.primary-btn { background:var(--accent); color:white; }
+.primary-btn:hover, .primary-btn:focus-visible { background:var(--accent-dark); outline:3px solid rgba(239,116,70,.25); }
+.secondary-btn { background:var(--navy); color:white; }
+.ghost-btn { background:transparent; border-color:#9a9287; color:var(--ink); }
+.ghost-btn:hover { background:#fff8; }
+.name-screen { grid-template-columns:.75fr 1.25fr; gap:28px; }
+.name-art { text-align:center; }
+.name-art img { width:min(360px,100%); }
+.name-input { width:100%; border:0; border-bottom:2px solid var(--ink); background:transparent; padding:14px 2px; font-size:28px; margin:10px 0 28px; outline:none; }
+.name-input:focus { border-color:var(--accent); }
+.signal-teach { display:grid; gap:22px; }
+.signal-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.signal-teach-card { border:1px solid #d6cbbb; background:#fff9; padding:16px; min-height:240px; }
+.signal-teach-card img { width:100%; height:116px; object-fit:contain; }
+.signal-teach-card h3 { margin:8px 0 6px; font-size:15px; }
+.signal-teach-card p { margin:0; font-size:12px; line-height:1.45; }
+.signal-note { background:#fff; border:1px solid #ddd2c1; padding:16px; font-size:13px; }
+.signal-note strong { display:block; margin-bottom:4px; }
+.question-layout { grid-template-columns:300px minmax(0,1fr); gap:28px; align-items:stretch; }
+.signal-rail { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; padding:24px; display:flex; flex-direction:column; justify-content:space-between; min-height:620px; }
+.signal-rail img { width:100%; max-height:230px; object-fit:contain; }
+.signal-rail h3 { font-size:24px; margin:8px 0; }
+.signal-rail p { font-size:13px; color:#d8e0e8; }
+.glorb-mini { display:flex; align-items:flex-end; gap:10px; margin-top:20px; }
+.glorb-mini img { width:76px; height:76px; object-fit:contain; }
+.glorb-mini div { font-size:11px; line-height:1.4; padding:10px; background:#f7f0e3; color:var(--ink); position:relative; }
+.question-card { background:var(--cream); border:1px solid #e0d4c3; padding:34px; min-height:620px; display:flex; flex-direction:column; box-shadow:var(--shadow); }
+.question-kicker { font-size:10px; letter-spacing:.16em; font-weight:800; color:var(--accent-dark); margin:0 0 8px; }
+.question-card h2 { max-width:760px; }
+.question-help { color:#56606d; margin-top:-4px; max-width:700px; font-size:14px; }
+.choice-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:22px 0 16px; }
+.choice-card { min-height:142px; border:1px solid #cfc5b6; background:#fff; padding:12px; text-align:left; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--ink); position:relative; }
+.choice-card img { width:94px; height:78px; object-fit:contain; }
+.choice-card span { font-size:12px; font-weight:700; text-align:center; line-height:1.25; }
+.choice-card:hover { border-color:#758091; transform:translateY(-1px); }
+.choice-card.selected { border:2px solid var(--navy); background:#e9eef2; box-shadow:inset 0 0 0 2px #fff; }
+.choice-card.selected::after { content:"✓"; position:absolute; top:7px; right:8px; width:22px; height:22px; border-radius:50%; background:var(--navy); color:white; display:grid; place-items:center; font-size:12px; }
+.choice-card.text-only { min-height:76px; align-items:flex-start; justify-content:center; }
+.choice-card.text-only span { text-align:left; font-size:13px; }
+.other-box { border-top:1px solid #d4c8b8; padding-top:16px; margin-top:8px; }
+.other-box label { display:block; font-size:11px; font-weight:800; letter-spacing:.06em; margin-bottom:7px; }
+.other-input { width:100%; border:1px solid #bdb3a5; background:#fff; padding:12px; min-height:48px; resize:vertical; }
+.adult-subhead { font-size:12px; letter-spacing:.1em; font-weight:800; margin:26px 0 10px; }
+.question-actions { margin-top:auto; padding-top:22px; display:flex; justify-content:space-between; gap:12px; }
+.question-actions .right { display:flex; gap:10px; margin-left:auto; }
+.selection-note { font-size:11px; color:#6b7480; }
+.section-complete { grid-template-columns:.75fr 1.25fr; gap:28px; }
+.section-complete .signal-big { text-align:center; }
+.section-complete .signal-big img { width:min(380px,100%); }
+.summary-pills { display:flex; flex-wrap:wrap; gap:7px; margin:16px 0 24px; }
+.summary-pill { background:#fff; border:1px solid #d3c7b8; padding:7px 9px; font-size:11px; }
+.report-screen { min-height:auto; display:block; }
+.report-toolbar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+.report { background:var(--paper); color:#111d2a; padding:34px; box-shadow:var(--shadow); }
+.report-page { max-width:1000px; margin:0 auto 24px; border:1px solid #bfb7aa; padding:30px; background:#fbf7ef; position:relative; }
+.report-head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a2c40; padding-bottom:18px; margin-bottom:20px; gap:20px; }
+.report-title { margin:0; font-size:36px; }
+.report-id { text-align:right; font-size:10px; letter-spacing:.08em; line-height:1.5; }
+.report-intro { display:grid; grid-template-columns:1fr 250px; gap:18px; background:#fff; border:1px solid #d6ccbd; padding:18px; margin-bottom:18px; }
+.report-intro img { width:100%; height:160px; object-fit:contain; }
+.report-intro h3 { margin-bottom:8px; }
+.signal-definitions { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:14px 0; }
+.signal-definition { padding:12px; border:1px solid #c9c0b2; min-height:120px; font-size:10.5px; line-height:1.45; }
+.signal-definition.low { background:var(--low); }
+.signal-definition.steady { background:var(--steady); }
+.signal-definition.rising { background:var(--rising); }
+.signal-definition.overload { background:var(--overload); }
+.signal-definition strong { display:block; font-size:11px; margin-bottom:4px; }
+.report-note { font-size:10.5px; line-height:1.5; color:#44505b; }
+.signal-report { border:1px solid #bfb7aa; margin:16px 0; page-break-inside:avoid; }
+.signal-report-head { display:flex; align-items:center; gap:14px; padding:12px 14px; border-bottom:1px solid #c8bfb2; }
+.signal-report-head.low { background:var(--low); }
+.signal-report-head.steady { background:var(--steady); }
+.signal-report-head.rising { background:var(--rising); }
+.signal-report-head.overload { background:var(--overload); }
+.signal-report-head img { width:72px; height:58px; object-fit:contain; }
+.signal-report-head h3 { margin:0; font-size:20px; }
+.signal-report-body { padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.report-block { border-top:1px solid #ddd3c6; padding-top:10px; }
+.report-block h4 { margin:0 0 7px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; }
+.report-list { display:flex; flex-wrap:wrap; gap:6px; }
+.report-chip { display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid #d1c7ba; padding:5px 7px; font-size:10px; }
+.report-chip img { width:28px; height:26px; object-fit:contain; }
+.report-other { grid-column:1 / -1; border-left:3px solid var(--accent); background:#fff; padding:10px; font-size:11px; line-height:1.5; }
+.priority-panel { border:2px solid var(--accent); padding:18px; margin:18px 0; page-break-inside:avoid; }
+.priority-panel h3 { margin-bottom:7px; }
+.priority-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.priority-card { border:1px solid #cbbfb0; padding:10px; display:flex; align-items:center; gap:9px; font-size:11px; }
+.priority-card img { width:55px; height:48px; object-fit:contain; }
+.signal-message { margin-top:20px; border:1px dashed #6d7580; padding:14px; page-break-inside:avoid; }
+.signal-message h3 { margin-bottom:8px; }
+.signal-message .options { display:flex; flex-wrap:wrap; gap:10px; font-size:11px; }
+.footer-note { border-top:1px solid #bbb2a4; margin-top:18px; padding-top:12px; font-size:9.5px; line-height:1.5; color:#4c5660; }
+@media (max-width:900px) {
+  .intro-screen,.name-screen,.question-layout,.section-complete { grid-template-columns:1fr; }
+  .intro-art { display:none; }
+  .signal-rail { min-height:auto; display:grid; grid-template-columns:130px 1fr; gap:16px; }
+  .signal-rail img { height:120px; }
+  .glorb-mini { grid-column:1 / -1; }
+  .question-card { min-height:unset; }
+  .choice-grid { grid-template-columns:repeat(2,1fr); }
+  .signal-grid { grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:560px) {
+  .topbar { padding:0 12px; }
+  .brand { font-size:9px; }
+  .top-actions { gap:2px; }
+  .app { padding:20px 12px 40px; }
+  .paper-card,.question-card { padding:24px 18px; }
+  h1 { font-size:40px; }
+  .choice-grid { grid-template-columns:1fr 1fr; gap:8px; }
+  .choice-card { min-height:128px; }
+  .signal-grid { grid-template-columns:1fr 1fr; }
+  .question-actions { flex-direction:column-reverse; }
+  .question-actions .right { margin-left:0; }
+  .question-actions button { width:100%; }
+  .report { padding:8px; }
+  .report-page { padding:16px; }
+  .report-intro,.signal-report-body { grid-template-columns:1fr; }
+  .signal-definitions { grid-template-columns:1fr 1fr; }
+  .priority-grid { grid-template-columns:1fr; }
+}
+@media print {
+  @page { size:A4; margin:10mm; }
+  body, html, .app-shell { background:white !important; }
+  .no-print,.report-toolbar { display:none !important; }
+  .app { max-width:none; padding:0; }
+  .screen { min-height:auto; display:block; }
+  .report { box-shadow:none; padding:0; }
+  .report-page { border:0; margin:0; padding:0; max-width:none; }
+  .page-break { page-break-before:always; }
+}
+
+/* V3 student-first feeling mapper */
+.short-copy { font-size:16px; margin:0 0 28px; }
+.short-lead { margin-bottom:0; }
+.primary-btn:disabled { opacity:.45; cursor:not-allowed; }
+.flash-message { position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:99; background:#fff; color:var(--ink); border:1px solid #cfc5b6; box-shadow:var(--shadow); padding:12px 18px; font-size:13px; font-weight:700; }
+
+.kid-intro,.kid-name { position:relative; grid-template-columns:minmax(260px,.72fr) minmax(560px,1.28fr); overflow:visible; }
+.intro-art-overlap,.name-art-overlap { position:relative; align-self:stretch; min-height:650px; z-index:4; pointer-events:none; }
+.intro-art-overlap img,.name-art-overlap img { position:absolute; width:clamp(330px,33vw,520px); max-width:none; left:2%; bottom:-34px; filter:drop-shadow(0 24px 28px rgba(0,0,0,.28)); }
+.kid-intro .intro-card,.kid-name .paper-card { z-index:2; }
+.kid-intro .lead { max-width:620px; }
+
+.picker-screen { display:block; min-height:auto; }
+.picker-card { padding:38px 42px 40px; }
+.picker-top { display:flex; justify-content:space-between; gap:24px; align-items:flex-start; }
+.picker-top h1 { font-size:clamp(40px,4.7vw,64px); max-width:900px; }
+.picker-glorb { width:150px; height:150px; object-fit:contain; margin-top:-8px; }
+.emotion-pick-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:26px 0 14px; }
+.emotion-pick-card { min-height:245px; border:1px solid #cfc5b6; background:#fff; color:var(--ink); padding:18px 14px 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; position:relative; text-align:center; }
+.emotion-pick-card img { width:165px; height:150px; object-fit:contain; }
+.emotion-pick-card strong { font-size:16px; line-height:1.15; }
+.emotion-pick-card span { font-size:11px; line-height:1.35; color:#68717b; }
+.emotion-pick-card:hover { transform:translateY(-2px); border-color:#778394; }
+.emotion-pick-card.selected { border:3px solid var(--navy); background:#edf1f4; }
+.emotion-pick-card.selected::after { content:'✓'; position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%; background:var(--navy); color:#fff; display:grid; place-items:center; font-size:13px; }
+.custom-feeling-row { display:grid; grid-template-columns:minmax(220px,1fr) 2fr; gap:14px; align-items:stretch; margin-top:14px; }
+.custom-pick { min-height:120px; flex-direction:row; justify-content:flex-start; text-align:left; padding:18px 22px; flex-wrap:wrap; }
+.custom-pick .custom-plus { width:48px; height:48px; border:1px solid #a69d91; display:grid; place-items:center; font-size:30px; line-height:1; }
+.custom-pick strong { width:auto; }
+.custom-pick span { width:100%; padding-left:64px; margin-top:-18px; }
+.custom-entry { background:#fff; border:1px solid #cfc5b6; padding:18px; display:flex; flex-direction:column; justify-content:center; }
+.custom-entry label { font-size:10px; letter-spacing:.12em; font-weight:800; margin-bottom:8px; }
+.custom-entry input { border:0; border-bottom:2px solid var(--accent); padding:10px 2px; font-size:22px; outline:none; background:transparent; }
+.picker-actions { display:flex; justify-content:flex-end; align-items:center; gap:18px; margin-top:24px; }
+.picker-actions span { font-size:12px; color:#5f6872; }
+
+.question-screen { grid-template-columns:250px minmax(0,1fr); gap:24px; align-items:stretch; }
+.emotion-rail { background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.13); color:#fff; padding:24px; min-height:650px; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; text-align:center; }
+.emotion-rail img { width:210px; height:230px; object-fit:contain; margin:10px auto 24px; }
+.emotion-rail .eyebrow { color:#dce5ef; margin-top:8px; }
+.emotion-rail h3 { font-size:26px; margin:3px 0 8px; }
+.emotion-rail p:last-child { color:#d6dee7; font-size:12px; }
+.kid-question-card { min-height:650px; padding:38px 42px; }
+.kid-question-card h2 { font-size:clamp(36px,4.3vw,58px); line-height:1; max-width:900px; margin-bottom:14px; }
+.kid-question-card .question-help { font-size:15px; margin:0; color:#5c6672; }
+.choice-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:26px 0 18px; }
+.choice-card { min-height:205px; padding:16px 12px 14px; gap:12px; }
+.choice-card img { width:150px; height:132px; object-fit:contain; }
+.choice-card span { font-size:14px; line-height:1.25; max-width:220px; }
+.choice-card.selected::after { top:10px; right:10px; width:28px; height:28px; font-size:14px; }
+.choice-icon { width:88px; height:88px; border:2px solid #9e9589; border-radius:50%; display:grid; place-items:center; font-size:34px; font-weight:800; }
+.text-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.choice-card.text-only { min-height:92px; padding:18px 20px; align-items:flex-start; justify-content:center; }
+.choice-card.text-only span { font-size:15px; line-height:1.35; text-align:left; max-width:none; }
+.support-grid .choice-card { min-height:170px; }
+.support-grid .choice-card img { width:112px; height:94px; }
+.compact-other { margin-top:2px; padding-top:14px; }
+.compact-other .other-input { min-height:54px; font-size:15px; }
+
+.emotion-complete-screen { place-items:center; }
+.emotion-complete-card { width:min(720px,100%); text-align:center; padding:46px; }
+.emotion-complete-card img { width:240px; height:220px; object-fit:contain; margin-bottom:8px; }
+.emotion-complete-card h1 { margin-bottom:18px; }
+
+@media (max-width:980px) {
+  .kid-intro,.kid-name,.question-screen { grid-template-columns:1fr; }
+  .intro-art-overlap,.name-art-overlap { min-height:270px; order:2; }
+  .intro-art-overlap img,.name-art-overlap img { width:280px; left:50%; transform:translateX(-50%); bottom:-55px; }
+  .emotion-pick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .question-screen { gap:16px; }
+  .emotion-rail { min-height:auto; display:grid; grid-template-columns:160px 1fr; text-align:left; align-items:center; }
+  .emotion-rail img { width:150px; height:150px; margin:0; grid-row:1 / 4; }
+  .emotion-rail h3 { font-size:24px; }
+  .choice-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width:620px) {
+  .picker-card,.kid-question-card { padding:24px 18px; }
+  .picker-top { display:block; }
+  .picker-glorb { width:105px; height:105px; float:right; margin-top:-85px; }
+  .emotion-pick-grid { grid-template-columns:1fr 1fr; gap:9px; }
+  .emotion-pick-card { min-height:190px; padding:12px 8px; }
+  .emotion-pick-card img { width:120px; height:112px; }
+  .emotion-pick-card strong { font-size:14px; }
+  .emotion-pick-card span { font-size:10px; }
+  .custom-feeling-row { grid-template-columns:1fr; }
+  .custom-pick { min-height:96px; }
+  .custom-pick span { padding-left:0; margin-top:0; }
+  .picker-actions { flex-direction:column; align-items:stretch; }
+  .picker-actions .primary-btn { width:100%; }
+  .emotion-rail { grid-template-columns:110px 1fr; padding:14px; }
+  .emotion-rail img { width:105px; height:105px; }
+  .kid-question-card h2 { font-size:34px; }
+  .choice-grid,.text-grid { grid-template-columns:1fr 1fr; gap:8px; }
+  .choice-card { min-height:158px; padding:10px 8px; }
+  .choice-card img { width:112px; height:96px; }
+  .choice-card span { font-size:12px; }
+  .choice-card.text-only { min-height:82px; }
+  .choice-card.text-only span { font-size:13px; }
+  .support-grid .choice-card { min-height:145px; }
+  .support-grid .choice-card img { width:90px; height:78px; }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar no-print">
+      <div class="brand">ZORBAX-9 RESEARCH DIVISION</div>
+      <div class="top-actions">
+        <button id="readBtn" class="text-btn" type="button" aria-label="Read this screen aloud">🔊 READ ALOUD</button>
+        <button id="clearBtn" class="text-btn" type="button">START OVER</button>
+      </div>
+    </header>
+
+    <div id="progressWrap" class="progress-wrap no-print hidden" aria-label="Mission progress">
+      <div class="progress-meta"><span id="progressLabel">SIGNAL MAP</span><span id="progressCount"></span></div>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    </div>
+
+    <main id="app" class="app" aria-live="polite"></main>
+  </div>
+
+  <template id="introTemplate">
+    <section class="screen intro-screen">
+      <div class="intro-art"><img src="assets/1.webp" alt="Glorb, an alien researcher" /></div>
+      <div class="paper-card intro-card">
+        <p class="eyebrow">INCOMING TRANSMISSION</p>
+        <h1>GLORB // EARTH SIGNAL CALIBRATION</h1>
+        <p class="lead">Build a plan that explains what your signals feel like, what other people might notice, and what actually helps you at school.</p>
+        <div class="not-test">
+          <strong>THIS IS NOT A TEST.</strong>
+          <span>There are no right answers. Different people notice different signals and need different things.</span>
+        </div>
+        <blockquote class="glorb-quote">Human emotional systems appear to give warnings before things become difficult. Mine did. I ignored approximately all of them. I need your help mapping yours.</blockquote>
+        <button class="primary-btn" data-action="intro-next" type="button">BEGIN SIGNAL SCAN →</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="reportTemplate">
+    <section id="report" class="report"></section>
+  </template>
+
+  <script>
+const app = document.getElementById('app');
+const progressWrap = document.getElementById('progressWrap');
+const progressBar = document.getElementById('progressBar');
+const progressCount = document.getElementById('progressCount');
+const progressLabel = document.getElementById('progressLabel');
+const readBtn = document.getElementById('readBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+const SIGNAL_ORDER = ['low', 'steady', 'rising', 'overload'];
+const STORAGE_KEY = 'glorbFeelingMapperV6';
+
+const signalData = {
+  low: {
+    label: 'LOW SIGNAL', className: 'low', img: 3,
+    definition: 'Energy or attention may be dropping. The student may need recovery, help getting started, or a change in demand.'
+  },
+  steady: {
+    label: 'STEADY SIGNAL', className: 'steady', img: 4,
+    definition: 'The student has enough capacity for the current situation. Steady does not have to mean silent, still, or perfectly calm.'
+  },
+  rising: {
+    label: 'RISING SIGNAL', className: 'rising', img: 5,
+    definition: 'An early warning signal. Activation, tension, speed, or urgency is increasing. Support at this stage can help the student respond before the system is overloaded.'
+  },
+  overload: {
+    label: 'SIGNAL OVERLOAD', className: 'overload', img: 6,
+    definition: 'Thinking, language, and flexible responding may be much harder. Prioritise safety, reduce demands and language, support regulation, and return to reflection later.'
+  }
+};
+
+const EMOTIONS = [
+  { id:'calm', label:'Calm / okay', short:'calm', img:24, examples:'settled, comfortable, focused' },
+  { id:'tired', label:'Tired / flat', short:'tired or flat', img:22, examples:'drained, bored, low energy' },
+  { id:'sad', label:'Sad / upset', short:'sad or upset', img:18, examples:'hurt, disappointed, down' },
+  { id:'lonely', label:'Lonely / left out', short:'lonely or left out', img:20, examples:'disconnected, left out, alone' },
+  { id:'nervous', label:'Nervous / worried', short:'nervous or worried', img:17, examples:'anxious, unsure, stressed' },
+  { id:'embarrassed', label:'Embarrassed', short:'embarrassed', img:19, examples:'awkward, exposed, self-conscious' },
+  { id:'frustrated', label:'Frustrated / angry', short:'frustrated or angry', img:15, examples:'annoyed, irritated, mad' },
+  { id:'overwhelmed', label:'Overwhelmed', short:'overwhelmed', img:11, examples:'too much, panicked, cannot think clearly' }
+];
+
+const BODY_OPTIONS = [
+  { label:'My heart beats faster', img:55, scores:{rising:2,overload:1} },
+  { label:'My breathing gets fast or shaky', img:30, scores:{rising:1,overload:2} },
+  { label:'My face or body feels hot', img:31, scores:{rising:2,overload:1} },
+  { label:'My muscles, jaw or hands get tight', img:61, scores:{rising:2,overload:1} },
+  { label:'My body shakes or trembles', img:59, scores:{rising:1,overload:2} },
+  { label:'My body feels heavy or tired', img:46, scores:{low:3} },
+  { label:'My breathing gets slow or shallow', img:40, scores:{low:2} },
+  { label:'My body goes very still or freezes', img:28, scores:{overload:2,low:1} },
+  { label:'My body feels relaxed', img:49, scores:{steady:3} },
+  { label:'My breathing feels easy', img:50, scores:{steady:3} },
+  { label:'My energy feels steady', img:53, scores:{steady:3} },
+  { label:'My head feels clear', img:52, scores:{steady:3} }
+];
+
+const URGE_OPTIONS = [
+  { label:'Keep doing what I am doing', img:79, scores:{steady:3} },
+  { label:'Talk, join in or take part', img:80, scores:{steady:2} },
+  { label:'Rest or slow down', img:88, scores:{low:3} },
+  { label:'Be alone for a bit', img:43, scores:{low:2} },
+  { label:'Put my head down or stop', img:39, scores:{low:3} },
+  { label:'Move, walk or pace', img:74, scores:{rising:2} },
+  { label:'Get away or leave the space', img:73, scores:{rising:1,overload:2} },
+  { label:'Yell or talk much louder', img:57, scores:{rising:2,overload:1} },
+  { label:'Argue or push back', img:29, scores:{overload:3} },
+  { label:'Cry or shut down', img:36, scores:{overload:3} },
+  { label:'Freeze or go very quiet', img:28, scores:{overload:2,low:1} },
+  { label:'Ask someone for help', img:67, scores:{steady:1,rising:1} }
+];
+
+const BOTHER_OPTIONS = [
+  'Too much noise or too many people',
+  'Lots of questions or people talking to me',
+  'Being rushed',
+  'Work feels too hard',
+  'Not knowing what I am meant to do',
+  'Plans changing suddenly',
+  'Being corrected in front of other people',
+  'Someone standing too close or touching me',
+  'Arguments or conflict',
+  'Feeling left out, ignored or misunderstood',
+  'Having to stop something I like',
+  'Being tired, hungry, thirsty or unwell'
+];
+
+const SELF_HELP_OPTIONS = [
+  { label:'Take a short break', img:76 },
+  { label:'Step away for a moment', img:73 },
+  { label:'Move my body', img:74 },
+  { label:'Go somewhere quieter', img:83 },
+  { label:'Use slow, comfortable breathing if it helps me', img:72 },
+  { label:'Use a fidget or something for my hands', img:77 },
+  { label:'Rest for a few minutes', img:88 },
+  { label:'Get water or my usual snack if appropriate', img:87 },
+  { label:'Talk to someone I trust', img:85 },
+  { label:'Change what I am doing for a bit', img:84 },
+  { label:'Use strong muscle movement if I know it helps and it is safe', img:69 },
+  { label:'Give myself time before deciding anything', img:71 }
+];
+
+const OTHER_HELP_OPTIONS = [
+  { label:'Give me some space', icon:'↔' },
+  { label:'Stay nearby', icon:'•' },
+  { label:'Talk quietly', img:107 },
+  { label:'Use fewer words', img:107 },
+  { label:'Help me know the next step', img:106 },
+  { label:'Give me two simple choices', icon:'2' },
+  { label:'Listen to me', img:103 },
+  { label:'Give me time to answer', icon:'…' },
+  { label:'Let me move or take a break', img:99 },
+  { label:'Check on me later', img:109 },
+  { label:'Ask me what I need', img:109 },
+  { label:'Help me get started', img:106 }
+];
+
+const NOT_HELP_OPTIONS = [
+  'Too many questions',
+  'Being told to calm down',
+  'Being rushed',
+  'Being corrected in front of other people',
+  'People standing too close',
+  'Being touched when I do not want to be',
+  'Someone raising their voice',
+  'Talking about what happened straight away',
+  'Lots of instructions at once',
+  'Taking away a break or support that is helping',
+  'Being left completely alone',
+  'People joking or laughing about it'
+];
+
+const QUESTION_FLOW = [
+  { key:'body', title:e=>`When you feel ${e.short}, what happens in your body?`, help:'Pick anything that sounds like you.', type:'visual', choices:()=>BODY_OPTIONS },
+  { key:'urge', title:e=>`When you feel ${e.short}, what does your body want to do?`, help:'There are no wrong answers.', type:'visual', choices:()=>URGE_OPTIONS },
+  { key:'bothers', title:e=>`What makes ${e.short} feel bigger?`, help:'Pick the things that tend to bother you.', type:'text', choices:()=>BOTHER_OPTIONS.map(label=>({label})) },
+  { key:'selfHelp', title:e=>`What helps you when you feel ${e.short}?`, help:'Choose what you can do for yourself.', type:'visual', choices:()=>SELF_HELP_OPTIONS },
+  { key:'otherHelp', title:e=>`What can someone else do that helps?`, help:'Think about what helps when you feel this way.', type:'support', choices:()=>OTHER_HELP_OPTIONS },
+  { key:'notHelp', title:e=>`What does NOT help when you feel ${e.short}?`, help:'Choose anything that can make it harder.', type:'text', choices:()=>NOT_HELP_OPTIONS.map(label=>({label})) }
+];
+
+const freshState = () => ({
+  stage:'intro',
+  name:'',
+  selectedEmotions:[],
+  customEmotion:'',
+  emotionIndex:0,
+  questionIndex:0,
+  answers:{}
+});
+
+let state = loadState() || freshState();
+
+const VALID_STAGES = new Set(['intro','name','pick','questions','emotionComplete','report']);
+if (!state || !VALID_STAGES.has(state.stage)) {
+  state = freshState();
+  saveState();
+}
+
+function loadState() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function saveState() { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function resetState() { sessionStorage.removeItem(STORAGE_KEY); state=freshState(); render(); }
+function asset(n) { return `assets/${n}.webp`; }
+function esc(str='') { return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+function emotionById(id) {
+  if (id === 'custom') return { id:'custom', label:state.customEmotion || 'My own feeling', short:(state.customEmotion || 'this feeling').toLowerCase(), img:23, examples:'your own words' };
+  return EMOTIONS.find(e=>e.id===id);
+}
+function currentEmotion() { return emotionById(state.selectedEmotions[state.emotionIndex]); }
+function ensureEmotionAnswers(id) {
+  if (!state.answers[id]) state.answers[id] = {};
+  return state.answers[id];
+}
+function answerFor(id,key) {
+  const e = ensureEmotionAnswers(id);
+  if (!e[key]) e[key] = {selected:[],other:''};
+  return e[key];
+}
+function totalQuestionCount() { return Math.max(1,state.selectedEmotions.length * QUESTION_FLOW.length); }
+function currentStepNumber() { return state.emotionIndex * QUESTION_FLOW.length + state.questionIndex + 1; }
+
+function setProgress() {
+  if (state.stage !== 'questions') { progressWrap.classList.add('hidden'); return; }
+  progressWrap.classList.remove('hidden');
+  const emotion=currentEmotion();
+  const step=currentStepNumber();
+  const total=totalQuestionCount();
+  progressBar.style.width=`${((step-1)/total)*100}%`;
+  progressLabel.textContent=`${emotion.label.toUpperCase()} // MY MAP`;
+  progressCount.textContent=`STEP ${step} OF ${total}`;
+}
+
+function render() {
+  try {
+    setProgress();
+    if (state.stage==='intro') return renderIntro();
+    if (state.stage==='name') return renderName();
+    if (state.stage==='pick') return renderFeelingPicker();
+    if (state.stage==='questions') return renderQuestion();
+    if (state.stage==='emotionComplete') return renderEmotionComplete();
+    if (state.stage==='report') return renderReport();
+
+    // Safety fallback for stale browser-session data from an older build.
+    state = freshState();
+    saveState();
+    return renderIntro();
+  } catch (error) {
+    console.error('GLORB Signal Mapper render error:', error);
+    sessionStorage.removeItem(STORAGE_KEY);
+    state = freshState();
+    app.innerHTML = `
+      <section class="screen intro-screen kid-intro">
+        <div class="intro-art intro-art-overlap"><img src="${asset(1)}" alt="Glorb, an alien researcher" /></div>
+        <div class="paper-card intro-card">
+          <p class="eyebrow">INCOMING TRANSMISSION</p>
+          <h1>GLORB // SIGNAL MAPPER</h1>
+          <p class="lead">The mapper needed a quick reset.</p>
+          <button class="primary-btn" id="recoveryStart" type="button">START →</button>
+        </div>
+      </section>`;
+    document.getElementById('recoveryStart')?.addEventListener('click', () => {
+      state = freshState();
+      saveState();
+      render();
+    });
+  }
+}
+
+function renderIntro() {
+  app.innerHTML=`
+    <section class="screen intro-screen kid-intro">
+      <div class="intro-art intro-art-overlap"><img src="${asset(1)}" alt="Glorb, an alien researcher" /></div>
+      <div class="paper-card intro-card">
+        <p class="eyebrow">INCOMING TRANSMISSION</p>
+        <h1>GLORB // SIGNAL MAPPER</h1>
+        <p class="lead">Tell me what feelings show up for you, what your body does, and what actually helps.</p>
+        <div class="not-test"><strong>NOT A TEST.</strong><span>No right answers. Just your answers.</span></div>
+        <blockquote class="glorb-quote">Human feelings appear to come with clues. I need your help mapping yours.</blockquote>
+        <button class="primary-btn" id="introNext" type="button">START →</button>
+      </div>
+    </section>`;
+  document.getElementById('introNext').addEventListener('click',()=>{state.stage='name';saveState();render();});
+}
+
+function renderName() {
+  app.innerHTML=`
+    <section class="screen name-screen kid-name">
+      <div class="name-art name-art-overlap"><img src="${asset(1)}" alt="Glorb" /></div>
+      <div class="paper-card">
+        <p class="eyebrow">FIRST THING</p>
+        <h1>WHAT SHOULD I CALL YOU?</h1>
+        <p class="short-copy">First name, nickname or initials. Your choice.</p>
+        <label class="eyebrow" for="studentName">NAME</label>
+        <input id="studentName" class="name-input" autocomplete="off" maxlength="40" value="${esc(state.name)}" placeholder="Type here" />
+        <button id="nameNext" class="primary-btn" type="button">NEXT →</button>
+      </div>
+    </section>`;
+  const input=document.getElementById('studentName'); input.focus();
+  document.getElementById('nameNext').addEventListener('click',()=>{
+    state.name=input.value.trim()||'Student'; state.stage='pick'; saveState(); render();
+  });
+}
+
+function emotionCard(e) {
+  const selected=state.selectedEmotions.includes(e.id);
+  return `<button class="emotion-pick-card ${selected?'selected':''}" type="button" data-emotion="${e.id}" aria-pressed="${selected}">
+    <img src="${asset(e.img)}" alt="" />
+    <strong>${esc(e.label)}</strong>
+    <span>${esc(e.examples)}</span>
+  </button>`;
+}
+
+function renderFeelingPicker() {
+  app.innerHTML=`
+    <section class="screen picker-screen">
+      <div class="paper-card picker-card">
+        <div class="picker-top">
+          <div>
+            <p class="eyebrow">YOUR TURN, ${esc(state.name).toUpperCase()}</p>
+            <h1>WHICH FEELINGS SHOW UP FOR YOU AT SCHOOL?</h1>
+            <p class="lead short-lead">Pick up to 4.</p>
+          </div>
+          <img class="picker-glorb" src="${asset(1)}" alt="Glorb" />
+        </div>
+        <div class="emotion-pick-grid">${EMOTIONS.map(emotionCard).join('')}</div>
+        <div class="custom-feeling-row">
+          <button class="emotion-pick-card custom-pick ${state.selectedEmotions.includes('custom')?'selected':''}" type="button" data-emotion="custom" aria-pressed="${state.selectedEmotions.includes('custom')}">
+            <div class="custom-plus">+</div><strong>Something else</strong><span>My feeling is not here.</span>
+          </button>
+          <div class="custom-entry ${state.selectedEmotions.includes('custom')?'':'hidden'}">
+            <label for="customEmotion">MY FEELING</label>
+            <input id="customEmotion" value="${esc(state.customEmotion)}" maxlength="40" placeholder="Type it here" />
+          </div>
+        </div>
+        <div class="picker-actions">
+          <span id="pickCount">${state.selectedEmotions.length} selected</span>
+          <button id="pickNext" class="primary-btn" type="button" ${state.selectedEmotions.length?'':'disabled'}>MAP THESE FEELINGS →</button>
+        </div>
+      </div>
+    </section>`;
+
+  app.querySelectorAll('[data-emotion]').forEach(btn=>btn.addEventListener('click',()=>{
+    const id=btn.dataset.emotion;
+    const index=state.selectedEmotions.indexOf(id);
+    if (index>=0) state.selectedEmotions.splice(index,1);
+    else if (state.selectedEmotions.length<4) state.selectedEmotions.push(id);
+    else { flashMessage('Pick up to 4 feelings.'); return; }
+    saveState(); renderFeelingPicker();
+  }));
+  const customInput=document.getElementById('customEmotion');
+  if (customInput) customInput.addEventListener('input',e=>{state.customEmotion=e.target.value;saveState();});
+  document.getElementById('pickNext').addEventListener('click',()=>{
+    if (!state.selectedEmotions.length) return;
+    if (state.selectedEmotions.includes('custom') && !state.customEmotion.trim()) { flashMessage('Type your feeling first.'); customInput?.focus(); return; }
+    state.emotionIndex=0; state.questionIndex=0; state.stage='questions'; saveState(); render();
+  });
+}
+
+function flashMessage(message) {
+  const old=document.getElementById('flashMessage'); if(old)old.remove();
+  const el=document.createElement('div'); el.id='flashMessage'; el.className='flash-message'; el.textContent=message; document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1800);
+}
+
+function renderOption(option, selected, textOnly=false) {
+  const isSelected=selected.includes(option.label);
+  return `<button type="button" class="choice-card ${textOnly?'text-only':''} ${isSelected?'selected':''}" data-choice="${esc(option.label)}" aria-pressed="${isSelected}">
+    ${option.img?`<img src="${asset(option.img)}" alt="" />`:option.icon?`<div class="choice-icon">${esc(option.icon)}</div>`:''}
+    <span>${esc(option.label)}</span>
+  </button>`;
+}
+
+function renderQuestion() {
+  const emotion=currentEmotion();
+  const q=QUESTION_FLOW[state.questionIndex];
+  const ans=answerFor(emotion.id,q.key);
+  const choices=q.choices(emotion);
+  const textOnly=q.type==='text';
+  app.innerHTML=`
+    <section class="screen question-screen">
+      <aside class="emotion-rail">
+        <img src="${asset(emotion.img)}" alt="${esc(emotion.label)}" />
+        <p class="eyebrow">RIGHT NOW</p>
+        <h3>${esc(emotion.label)}</h3>
+        <p>${state.questionIndex+1} of ${QUESTION_FLOW.length}</p>
+      </aside>
+      <div class="question-card kid-question-card">
+        <p class="question-kicker">${esc(emotion.label.toUpperCase())} // ${state.questionIndex+1} OF ${QUESTION_FLOW.length}</p>
+        <h2>${esc(q.title(emotion))}</h2>
+        <p class="question-help">${esc(q.help)}</p>
+        <div class="choice-grid ${textOnly?'text-grid':''} ${q.type==='support'?'support-grid':''}">
+          ${choices.map(o=>renderOption(o,ans.selected,textOnly)).join('')}
+        </div>
+        <div class="other-box compact-other">
+          <label for="otherInput">+ ADD MY OWN</label>
+          <textarea id="otherInput" class="other-input" rows="2" placeholder="Something else...">${esc(ans.other)}</textarea>
+        </div>
+        <div class="question-actions">
+          <button id="backBtn" class="ghost-btn" type="button">← BACK</button>
+          <div class="right"><button id="nextBtn" class="primary-btn" type="button">${state.questionIndex===QUESTION_FLOW.length-1?'DONE →':'NEXT →'}</button></div>
+        </div>
+      </div>
+    </section>`;
+
+  app.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>{
+    const value=btn.dataset.choice; const i=ans.selected.indexOf(value);
+    if(i>=0)ans.selected.splice(i,1); else ans.selected.push(value);
+    saveState(); btn.classList.toggle('selected'); btn.setAttribute('aria-pressed',btn.classList.contains('selected'));
+  }));
+  document.getElementById('otherInput').addEventListener('input',e=>{ans.other=e.target.value;saveState();});
+  document.getElementById('backBtn').addEventListener('click',goBack);
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    saveState();
+    if(state.questionIndex<QUESTION_FLOW.length-1){state.questionIndex++;render();}
+    else {state.stage='emotionComplete';render();}
+  });
+}
+
+function goBack() {
+  if(state.questionIndex>0){state.questionIndex--;render();return;}
+  if(state.emotionIndex>0){state.emotionIndex--;state.questionIndex=QUESTION_FLOW.length-1;render();return;}
+  state.stage='pick';render();
+}
+
+function renderEmotionComplete() {
+  progressWrap.classList.add('hidden');
+  const emotion=currentEmotion();
+  const isLast=state.emotionIndex===state.selectedEmotions.length-1;
+  app.innerHTML=`
+    <section class="screen emotion-complete-screen">
+      <div class="paper-card emotion-complete-card">
+        <img src="${asset(emotion.img)}" alt="" />
+        <p class="eyebrow">MAPPED ✓</p>
+        <h1>${esc(emotion.label.toUpperCase())}</h1>
+        <p class="lead">Got it. I know more about what this feeling is like for you.</p>
+        <button id="completeNext" class="primary-btn" type="button">${isLast?'BUILD MY PLAN →':`NEXT FEELING →`}</button>
+      </div>
+    </section>`;
+  document.getElementById('completeNext').addEventListener('click',()=>{
+    if(isLast){state.stage='report';saveState();render();}
+    else{state.emotionIndex++;state.questionIndex=0;state.stage='questions';saveState();render();}
+  });
+}
+
+function optionByLabel(pool,label){return pool.find(o=>o.label===label);}
+function scoreEmotion(emotionId){
+  const scores={low:0,steady:0,rising:0,overload:0};
+  const body=answerFor(emotionId,'body').selected;
+  const urge=answerFor(emotionId,'urge').selected;
+  body.forEach(label=>{const o=optionByLabel(BODY_OPTIONS,label); if(o?.scores)Object.entries(o.scores).forEach(([k,v])=>scores[k]+=v);});
+  urge.forEach(label=>{const o=optionByLabel(URGE_OPTIONS,label); if(o?.scores)Object.entries(o.scores).forEach(([k,v])=>scores[k]+=v);});
+  return scores;
+}
+
+function mapEmotionToSignals(emotionId){
+  const scores=scoreEmotion(emotionId);
+  const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const top=ranked[0][1];
+  if(top===0)return [];
+  const result=[ranked[0][0]];
+  const second=ranked[1];
+  if(second[1]>=3 && second[1]>=top*0.72) result.push(second[0]);
+  return result;
+}
+
+function mappedEmotionIds(signalKey){
+  return state.selectedEmotions.filter(id=>mapEmotionToSignals(id).includes(signalKey));
+}
+function unique(arr){return [...new Set(arr.filter(Boolean))];}
+function collectForSignal(signalKey,key){
+  const ids=mappedEmotionIds(signalKey);
+  const items=[];
+  ids.forEach(id=>{
+    const a=answerFor(id,key);
+    items.push(...a.selected);
+    if(a.other.trim())items.push(a.other.trim());
+  });
+  return unique(items);
+}
+function findImageForLabel(label){
+  const pools=[BODY_OPTIONS,URGE_OPTIONS,SELF_HELP_OPTIONS,OTHER_HELP_OPTIONS];
+  for(const p of pools){const o=p.find(x=>x.label===label);if(o?.img)return o.img;}
+  return null;
+}
+function chips(items,showImages=true){
+  if(!items.length)return '<span class="report-chip">Not identified yet</span>';
+  return items.map(label=>{const img=showImages?findImageForLabel(label):null;return `<span class="report-chip">${img?`<img src="${asset(img)}" alt=""/>`:''}${esc(label)}</span>`;}).join('');
+}
+function mappedFeelingChips(signalKey){
+  const ids=mappedEmotionIds(signalKey);
+  if(!ids.length)return '<span class="report-chip">No clear feeling pattern mapped here yet</span>';
+  return ids.map(id=>{const e=emotionById(id);return `<span class="report-chip"><img src="${asset(e.img)}" alt=""/>${esc(e.label)}</span>`;}).join('');
+}
+
+function reportSignal(signalKey){
+  const s=signalData[signalKey];
+  return `<section class="signal-report">
+    <div class="signal-report-head ${s.className}"><img src="${asset(s.img)}" alt=""/><div><h3>${s.label}</h3><div class="report-note">When ${esc(state.name)} is in ${s.label}, they have identified the following body clues, responses and supports. This grouping is based on their selected body and action patterns, not the emotion label alone.</div></div></div>
+    <div class="signal-report-body">
+      <div class="report-block"><h4>Feelings that may show up</h4><div class="report-list">${mappedFeelingChips(signalKey)}</div></div>
+      <div class="report-block"><h4>Body clues</h4><div class="report-list">${chips(collectForSignal(signalKey,'body'))}</div></div>
+      <div class="report-block"><h4>May want to do</h4><div class="report-list">${chips(collectForSignal(signalKey,'urge'))}</div></div>
+      <div class="report-block"><h4>Can make the feeling bigger</h4><div class="report-list">${chips(collectForSignal(signalKey,'bothers'),false)}</div></div>
+      <div class="report-block"><h4>Student-identified self supports</h4><div class="report-list">${chips(collectForSignal(signalKey,'selfHelp'))}</div></div>
+      <div class="report-block"><h4>Other people can help by</h4><div class="report-list">${chips(collectForSignal(signalKey,'otherHelp'))}</div></div>
+      <div class="report-block"><h4>Please avoid or reduce</h4><div class="report-list">${chips(collectForSignal(signalKey,'notHelp'),false)}</div></div>
+    </div>
+  </section>`;
+}
+
+function topSupports(signalKey,limit=3){
+  const items=collectForSignal(signalKey,'selfHelp').slice(0,limit);
+  if(!items.length)return '<div class="priority-card"><span>No priority strategy identified yet.</span></div>';
+  return items.map(label=>{const img=findImageForLabel(label);return `<div class="priority-card">${img?`<img src="${asset(img)}" alt=""/>`:''}<span>${esc(label)}</span></div>`;}).join('');
+}
+
+function buildShareText(){
+  const lines=SIGNAL_ORDER.map(k=>{
+    const s=signalData[k]; const feelings=mappedEmotionIds(k).map(id=>emotionById(id).label).join(', ')||'not clearly mapped';
+    const self=collectForSignal(k,'selfHelp').join(', ')||'not identified yet';
+    const others=collectForSignal(k,'otherHelp').join(', ')||'not identified yet';
+    return `${s.label}\nFeelings/patterns: ${feelings}\nHelps: ${self}\nOther people can help by: ${others}`;
+  }).join('\n\n');
+  return `${state.name}'s Signal Plan\n\nThe Signal System describes changes in energy, attention, tension and thinking. It is not a diagnosis or behaviour ranking. This tool groups patterns from the student's own body and action selections.\n\n${lines}\n\nReview this plan collaboratively with the student.`;
+}
+
+function renderReport(){
+  progressWrap.classList.add('hidden');
+  const today=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+  const risingFeelings=mappedEmotionIds('rising').map(id=>emotionById(id).label);
+  const overloadFeelings=mappedEmotionIds('overload').map(id=>emotionById(id).label);
+  const risingOther=collectForSignal('rising','otherHelp');
+  const overloadOther=collectForSignal('overload','otherHelp');
+  app.innerHTML=`
+    <section class="screen report-screen">
+      <div class="report-toolbar no-print">
+        <button id="editBtn" class="ghost-btn" type="button">← EDIT ANSWERS</button>
+        <button id="printBtn" class="primary-btn" type="button">PRINT OR SAVE PDF</button>
+        <button id="shareBtn" class="secondary-btn" type="button">SHARE WITH AN ADULT</button>
+        <button id="copyBtn" class="ghost-btn" type="button">COPY SUMMARY</button>
+      </div>
+      <div class="report">
+        <div class="report-page">
+          <header class="report-head"><div><p class="eyebrow">ZORBAX-9 RESEARCH DIVISION // STUDENT SUPPORT</p><h1 class="report-title">${esc(state.name)}'S SIGNAL PLAN</h1></div><div class="report-id">GLORB SIGNAL MAPPER<br>DATE: ${esc(today)}<br>STUDENT SELF-REPORT</div></header>
+          <div class="report-intro">
+            <div>
+              <h3>WHAT IS THE SIGNAL SYSTEM?</h3>
+              <p class="report-note">The Signal System is a student-friendly way to describe changes in energy, attention, tension and thinking across the school day. It is not a diagnosis, a score, or a ranking of behaviour. A student can move between signals, and the same feeling can occur in more than one signal.</p>
+              <p class="report-note"><strong>Steady does not mean silent, still or perfectly calm.</strong> The aim is to understand what each signal looks and feels like for this student, notice early changes, and match support to the student's current needs.</p>
+              <p class="report-note"><strong>How this report was mapped:</strong> ${esc(state.name)} answered questions about feelings, body cues, action urges and supports. The tool then grouped those patterns into signals. Emotion names alone do not decide the signal.</p>
+            </div>
+            <img src="${asset(7)}" alt="The four Glorb signal groups" />
+          </div>
+          <div class="signal-definitions">${SIGNAL_ORDER.map(k=>`<div class="signal-definition ${k}"><strong>${signalData[k].label}</strong>${signalData[k].definition}</div>`).join('')}</div>
+          <div class="priority-panel">
+            <p class="eyebrow">CATCH IT EARLY</p><h3>WHEN ${esc(state.name).toUpperCase()}'S PATTERN LOOKS LIKE RISING SIGNAL</h3>
+            <p class="report-note">Feelings currently mapped here: <strong>${esc(risingFeelings.join(' • ')||'No clear Rising pattern identified yet')}</strong></p>
+            <div class="priority-grid">${topSupports('rising')}</div>
+            ${risingOther.length?`<p class="report-note"><strong>Helpful response from others:</strong> ${esc(risingOther.join(' • '))}</p>`:''}
+          </div>
+          <div class="priority-panel">
+            <p class="eyebrow">IF THE PATTERN LOOKS LIKE OVERLOAD</p><h3>SUPPORT FIRST. REFLECTION LATER.</h3>
+            <p class="report-note">Feelings currently mapped here: <strong>${esc(overloadFeelings.join(' • ')||'No clear Overload pattern identified yet')}</strong></p>
+            <div class="priority-grid">${topSupports('overload')}</div>
+            ${overloadOther.length?`<p class="report-note"><strong>Helpful response from others:</strong> ${esc(overloadOther.join(' • '))}</p>`:''}
+          </div>
+          <div class="footer-note"><strong>Evidence-informed use note:</strong> This is a formative SEL self-report and collaborative planning tool, not a clinical diagnostic assessment. Regulation strategies are not one-size-fits-all. Use the student's selections as hypotheses to test, observe what works in context, follow existing school and health plans, and revise the plan with the student over time.</div>
+        </div>
+        <div class="report-page page-break"><header class="report-head"><div><p class="eyebrow">PERSONAL SIGNAL MAP</p><h2>LOW + STEADY</h2></div><div class="report-id">${esc(state.name)}<br>PAGE 2</div></header>${reportSignal('low')}${reportSignal('steady')}</div>
+        <div class="report-page page-break"><header class="report-head"><div><p class="eyebrow">PERSONAL SIGNAL MAP</p><h2>RISING + OVERLOAD</h2></div><div class="report-id">${esc(state.name)}<br>PAGE 3</div></header>${reportSignal('rising')}${reportSignal('overload')}<div class="footer-note"><strong>For adults:</strong> The wording “student has identified” is intentional. This plan records the student's own observations and preferences. The signal grouping is an organisational aid based on selected cues, not a diagnosis. Review it with the student and combine it with adult observation and any existing individual support, safety, health or disability plans.</div></div>
+      </div>
+    </section>`;
+  document.getElementById('printBtn').addEventListener('click',()=>window.print());
+  document.getElementById('editBtn').addEventListener('click',()=>{state.stage='pick';saveState();render();});
+  document.getElementById('copyBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(buildShareText());alert('Signal Plan summary copied.');}catch{alert('Copy was blocked by this browser.');}});
+  document.getElementById('shareBtn').addEventListener('click',sharePlan);
+}
+
+async function sharePlan(){
+  const text=buildShareText(); const title=`${state.name}'s Signal Plan`;
+  if(navigator.share){try{await navigator.share({title,text});return;}catch(e){if(e.name==='AbortError')return;}}
+  const subject=encodeURIComponent(title); const body=encodeURIComponent(text+'\n\nFor the full visual plan, print or save the report as a PDF and attach it to your message.');
+  window.location.href=`mailto:?subject=${subject}&body=${body}`;
+}
+
+readBtn.addEventListener('click',()=>{
+  if(!('speechSynthesis' in window)){alert('Read Aloud is not supported in this browser.');return;}
+  window.speechSynthesis.cancel(); const text=app.innerText.replace(/\s+/g,' ').trim(); const utter=new SpeechSynthesisUtterance(text); utter.rate=.95; window.speechSynthesis.speak(utter);
+});
+clearBtn.addEventListener('click',()=>{if(confirm('Start over and clear the answers from this browser session?'))resetState();});
+
+render();
+
+</script>
+</body>
+</html>
