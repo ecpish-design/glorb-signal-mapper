@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#07182d" />
-  <title>GLORB // Earth Signal Calibration</title>
+  <title>GLORB // Signal Mapper</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,36 +16,12 @@
         <button id="clearBtn" class="text-btn" type="button">START OVER</button>
       </div>
     </header>
-
-    <div id="progressWrap" class="progress-wrap no-print hidden" aria-label="Mission progress">
-      <div class="progress-meta"><span id="progressLabel">SIGNAL MAP</span><span id="progressCount"></span></div>
+    <div id="progressWrap" class="progress-wrap no-print hidden" aria-label="Progress">
+      <div class="progress-meta"><span id="progressLabel">MY MAP</span><span id="progressCount"></span></div>
       <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
     </div>
-
     <main id="app" class="app" aria-live="polite"></main>
   </div>
-
-  <template id="introTemplate">
-    <section class="screen intro-screen">
-      <div class="intro-art"><img src="assets/1.webp" alt="Glorb, an alien researcher" /></div>
-      <div class="paper-card intro-card">
-        <p class="eyebrow">INCOMING TRANSMISSION</p>
-        <h1>GLORB // EARTH SIGNAL CALIBRATION</h1>
-        <p class="lead">Build a plan that explains what your signals feel like, what other people might notice, and what actually helps you at school.</p>
-        <div class="not-test">
-          <strong>THIS IS NOT A TEST.</strong>
-          <span>There are no right answers. Different people notice different signals and need different things.</span>
-        </div>
-        <blockquote class="glorb-quote">Human emotional systems appear to give warnings before things become difficult. Mine did. I ignored approximately all of them. I need your help mapping yours.</blockquote>
-        <button class="primary-btn" data-action="intro-next" type="button">BEGIN SIGNAL SCAN →</button>
-      </div>
-    </section>
-  </template>
-
-  <template id="reportTemplate">
-    <section id="report" class="report"></section>
-  </template>
-
   <script src="app.js"></script>
 </body>
 </html>

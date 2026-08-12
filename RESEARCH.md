@@ -60,3 +60,11 @@ The resource does not claim that every individual card has equal research suppor
 ## Important implementation rule
 
 Do not use this plan to infer intent, diagnose a condition, or replace an existing health, disability, behaviour or safety plan. If a selected strategy conflicts with school procedures or an individual plan, follow the established plan and adapt the Signal Plan accordingly.
+
+## V3 student-facing architecture
+
+The learner-facing version now begins with a small set of common school emotions rather than the Signal categories. This is a design choice, not a claim that the eight feeling labels form a validated emotion taxonomy. The purpose is to lower response burden and let the learner start from familiar language.
+
+For each chosen feeling, the student reports body cues, action urges, situations that make the feeling bigger, self-selected strategies, helpful responses from other people, and responses that do not help. Signal labels are introduced only in the adult report.
+
+The automated Signal grouping uses selected body and action patterns, not the emotion word itself. This prevents the tool from treating an emotion such as frustration as belonging to one fixed regulation state. The mapping should be interpreted as a planning hypothesis and reviewed with the student, not as a psychometric score or clinical classification.

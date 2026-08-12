@@ -1,33 +1,61 @@
-# GLORB // Earth Signal Calibration
+# GLORB // Signal Mapper
 
-A standalone or program-linked student self-regulation planning tool for middle school learners.
+A student-first emotion and regulation planning tool for middle-school learners. It can be used on its own or alongside the wider Glorb program.
 
-## What this build does
+## Student experience
 
-- Teaches the four Signal states before asking the student to use them, so no prior Glorb knowledge is required.
-- Uses one question per screen and records student-selected feelings, body signs, observable signs, contexts, strategies, adult supports and student-written "Other" responses.
-- Builds a printable adult-facing Signal Plan with definitions of the Signal System and each signal.
-- Includes a Catch It Early section for Rising Signal and a First Support section for Signal Overload.
-- Supports print or Save as PDF using the browser print dialog.
-- Supports Web Share where available, with an email fallback.
-- Keeps data in the browser session only. No server, account, analytics or database is included.
-- Includes Read Aloud using the browser Speech Synthesis API.
+The student does **not** need to know the Signal System.
 
-## Evidence-informed design notes
+1. Enter a name or nickname.
+2. Choose up to four main feelings that show up at school.
+3. Work through one feeling at a time.
+4. Answer one short question per screen:
+   - What happens in your body?
+   - What does your body want to do?
+   - What makes the feeling bigger?
+   - What helps you?
+   - What can someone else do that helps?
+   - What does not help?
+5. Add a personal answer anywhere using **+ Add my own**.
+6. Generate a printable adult-facing Signal Plan.
 
-This is a formative SEL self-report and planning tool, not a clinical diagnostic assessment.
+The student-facing script deliberately avoids asking the learner to classify themselves as Low, Steady, Rising or Overload. The report organises the student's selected body and action patterns into those Signal groups afterward.
 
-The structure is informed by:
+## Signal mapping
 
-1. CASEL self-awareness and self-management: identifying emotions, linking emotions and behaviour, managing stress and using stress-management strategies.
-2. Australian Curriculum V9 Personal and Social Capability: constructing, expressing, managing, monitoring and evaluating emotional responses.
-3. Research on school-based adolescent emotion-regulation programs showing beneficial, though variable, effects and supporting explicit teaching of regulation skills.
-4. Emotion-regulation flexibility research. No single strategy is best in every context, so the tool asks students which strategies help them rather than prescribing one universal response.
-5. Developmental co-regulation research. Adult support is included as part of the plan because young people continue to benefit from external scaffolding during challenging states.
-6. Relaxation and breathing research. Slow comfortable breathing is offered as one optional strategy, not as a guaranteed or compulsory technique.
-7. Body-signal and interoception research is still mixed in adolescents. Body-cue questions are therefore framed as personal noticing and communication, not as a claim that identifying body sensations will automatically improve regulation.
+The report does **not** assign a Signal from an emotion name. For example, "frustrated" is not automatically treated as Rising Signal.
 
-Some strategy cards, such as fidgets, quiet space, movement, water/snack and strong-muscle movement, are common classroom supports and are also present in the supplied Glorb framework. Their effectiveness is individual and context-dependent. The report deliberately says "student has identified" and encourages adults to observe, collaborate and revise the plan based on what actually helps.
+Instead, the build scores the student's selected body and action cues. A feeling can therefore map to Low, Steady, Rising, Overload, or more than one Signal when the selected pattern is mixed. If there is not enough information, the report says that no clear pattern was identified.
+
+This mapping is an organisational aid for collaborative planning, not a diagnosis or validated assessment score.
+
+## What the report includes
+
+- Plain-language definition of the Signal System for adults who have never used Glorb.
+- Definitions of Low, Steady, Rising and Signal Overload.
+- Student-identified feelings that may appear with each mapped pattern.
+- Body cues and action urges.
+- Things that can make the feeling bigger.
+- Self-selected regulation supports.
+- Helpful responses from other people.
+- Things the student says do not help.
+- A **Catch It Early** section for Rising patterns.
+- An **Overload: Support First, Reflection Later** section.
+- Print / Save as PDF, Copy Summary and Share with an Adult controls.
+
+## UX choices
+
+- One question per screen.
+- Short learner-facing copy.
+- Large visual cards.
+- Up to four main feelings rather than a full emotion inventory.
+- No right/wrong answers or score.
+- Read Aloud using the browser Speech Synthesis API.
+- Browser-session storage only. No server, account, analytics or database is included.
+
+## Evidence-informed design
+
+See `RESEARCH.md` for the research basis and the limits of the strategy bank. The resource treats strategies as student-selected options to test and review, not universal prescriptions.
 
 ## Deployment
 
