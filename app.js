@@ -7,7 +7,7 @@ const readBtn = document.getElementById('readBtn');
 const clearBtn = document.getElementById('clearBtn');
 
 const SIGNAL_ORDER = ['low', 'steady', 'rising', 'overload'];
-const STORAGE_KEY = 'glorbFeelingMapperV3';
+const STORAGE_KEY = 'glorbFeelingMapperV4';
 
 const signalData = {
   low: {
@@ -150,6 +150,12 @@ const freshState = () => ({
 
 let state = loadState() || freshState();
 
+const VALID_STAGES = new Set(['intro','name','pick','questions','emotionComplete','report']);
+if (!state || !VALID_STAGES.has(state.stage)) {
+  state = freshState();
+  saveState();
+}
+
 function loadState() {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -190,13 +196,39 @@ function setProgress() {
 }
 
 function render() {
-  setProgress();
-  if (state.stage==='intro') return renderIntro();
-  if (state.stage==='name') return renderName();
-  if (state.stage==='pick') return renderFeelingPicker();
-  if (state.stage==='questions') return renderQuestion();
-  if (state.stage==='emotionComplete') return renderEmotionComplete();
-  if (state.stage==='report') return renderReport();
+  try {
+    setProgress();
+    if (state.stage==='intro') return renderIntro();
+    if (state.stage==='name') return renderName();
+    if (state.stage==='pick') return renderFeelingPicker();
+    if (state.stage==='questions') return renderQuestion();
+    if (state.stage==='emotionComplete') return renderEmotionComplete();
+    if (state.stage==='report') return renderReport();
+
+    // Safety fallback for stale browser-session data from an older build.
+    state = freshState();
+    saveState();
+    return renderIntro();
+  } catch (error) {
+    console.error('GLORB Signal Mapper render error:', error);
+    sessionStorage.removeItem(STORAGE_KEY);
+    state = freshState();
+    app.innerHTML = `
+      <section class="screen intro-screen kid-intro">
+        <div class="intro-art intro-art-overlap"><img src="${asset(1)}" alt="Glorb, an alien researcher" /></div>
+        <div class="paper-card intro-card">
+          <p class="eyebrow">INCOMING TRANSMISSION</p>
+          <h1>GLORB // SIGNAL MAPPER</h1>
+          <p class="lead">The mapper needed a quick reset.</p>
+          <button class="primary-btn" id="recoveryStart" type="button">START →</button>
+        </div>
+      </section>`;
+    document.getElementById('recoveryStart')?.addEventListener('click', () => {
+      state = freshState();
+      saveState();
+      render();
+    });
+  }
 }
 
 function renderIntro() {
